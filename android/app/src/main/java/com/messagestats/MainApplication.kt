@@ -1,4 +1,4 @@
-package com.messagestats
+package com.ChatStats
 
 import android.app.Application
 import com.facebook.react.PackageList

@@ -68,6 +68,22 @@ You've successfully run and modified your React Native App. :partying_face:
 
 If you can't get this to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
 
+If Error:
+
+``
+node_modules/@react-native-community/art/android/src/main/java/com/reactnativecommunity/art/ARTShapeShadowNode.java:25: error: static import only from classes and interfaces import static com.facebook.react.common.ArrayUtils.copyArray; ^ Note: Some input files use or override a deprecated API. Note: Recompile with -Xlint:deprecation for details. 2 errors
+``
+
+Then go to:
+```
+node_modules/@react-native-community/art/android/src/main/java/com/reactnativecommunity/art/ARTShapeShadowNode.java
+```
+and remove (or comment)
+``
+// import static com.facebook.react.common.ArrayUtils.copyArray;
+
+``
+
 # Learn More
 
 To learn more about React Native, take a look at the following resources:
