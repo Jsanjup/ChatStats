@@ -2,8 +2,9 @@ import React from 'react';
 import {Dimensions, View} from 'react-native';
 import {Text} from 'react-native-svg';
 import {PieChart} from 'react-native-svg-charts';
-import {chatProps, navigableState} from '../../../App';
-import {HitCount} from '../../Service/Counter';
+import {chatProps, navigableState} from '../../../../App';
+import {HitCount} from '../../../Service/Counter';
+import {Colors} from '../../../util/Colors';
 
 const deviceWidth = Dimensions.get('window').width;
 
@@ -15,7 +16,7 @@ type PieGraphState = navigableState & {
 export class PieGraph extends React.Component<chatProps, PieGraphState> {
   heads: string[];
   dates: string[];
-  tableData: Record<string, string | number>;
+  tableData: Record<string, number>;
 
   constructor(props: chatProps) {
     super(props);
@@ -42,20 +43,16 @@ export class PieGraph extends React.Component<chatProps, PieGraphState> {
     this.dates = HitCount.getDates(data);
     this.heads = ['Date', ...this.props.data.authors];
     const grouped = HitCount.groupByDay(data, this.heads.length - 1);
-    let tdata: Record<string, string | number>[] = [];
+    let tdata: Record<string, number>[] = [];
     for (let st of grouped) {
-      let d: Record<string, string | number> = {};
-      d.day = st[0].day;
+      let d: Record<string, number> = {};
       for (let s of st) {
         d[s.author] = s.total;
       }
       tdata.push(d);
     }
     this.tableData = tdata.reduce(
-      (
-        prev: Record<string, string | number>,
-        current: Record<string, string | number>,
-      ) => {
+      (prev: Record<string, number>, current: Record<string, number>) => {
         for (let key of Object.keys(current)) {
           if (typeof prev[key] === 'number') {
             let p: number = prev[key] as number;
@@ -76,16 +73,16 @@ export class PieGraph extends React.Component<chatProps, PieGraphState> {
 
     const {labelWidth, selectedSlice} = this.state;
     const {label, value} = selectedSlice;
-    const colors = ['#600080', '#9900cc', '#c61aff', '#d966ff', '#ecb3ff'];
+    let max = Math.max(...Object.values(this.tableData));
     const data = Object.keys(this.tableData)
       .filter(d => typeof this.tableData[d] === 'number')
       .map((key, index) => {
         return {
           key,
-          value: this.tableData[key] as number,
-          svg: {fill: colors[index]},
+          value: this.tableData[key],
+          svg: {fill: Colors[index]},
           arc: {
-            outerRadius: 70 + (this.tableData[key] as number) + '%',
+            outerRadius: 25 + (this.tableData[key] / max) * 25 + '%',
             padAngle: label === key ? 0.1 : 0,
           },
           onPress: () =>
@@ -94,14 +91,15 @@ export class PieGraph extends React.Component<chatProps, PieGraphState> {
             }),
         };
       });
-    console.log('[PieGraph]', 'Data', data, selectedSlice);
+    console.log('[PieGraph]', 'Data', data, this.tableData, selectedSlice);
 
     return (
-      <View style={{justifyContent: 'center', flex: 1}}>
+      <View
+        style={{justifyContent: 'center', flex: 0, height: 600, width: 400}}>
         <PieChart
-          style={{height: 200}}
-          outerRadius={'80%'}
-          innerRadius={'45%'}
+          style={{height: 600, width: 400}}
+          outerRadius={'100%'}
+          innerRadius={'20%'}
           data={data}
         />
         <Text

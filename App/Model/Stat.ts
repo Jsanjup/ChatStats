@@ -1,4 +1,5 @@
-import {Column, Entity, PrimaryColumn} from 'typeorm/browser';
+import {Column, Entity, OneToOne, PrimaryColumn} from 'typeorm/browser';
+import {Chat} from './Chat';
 import {Stat} from './Types';
 
 export type stats = {
@@ -27,12 +28,16 @@ export class Stats {
   @Column('text')
   parsedAuthors: string;
 
-  constructor(stats: stats) {
-    this.id = stats.id;
-    this.firstDate = stats.firstDate || 0;
-    this.lastDate = stats.lastDate || 0;
-    this.parsedStats = JSON.stringify(stats.stats);
-    this.parsedAuthors = JSON.stringify(stats.authors);
+  @OneToOne(() => Chat, chat => chat.stats) // specify inverse side as a second parameter
+  chat: Chat;
+
+  constructor(stats?: stats) {
+    this.id = stats?.id || '';
+    this.firstDate = stats?.firstDate || 0;
+    this.lastDate = stats?.lastDate || 0;
+    this.parsedStats = JSON.stringify(stats?.stats);
+    this.parsedAuthors = JSON.stringify(stats?.authors);
+    this.chat = new Chat();
   }
 
   toStats(): stats {

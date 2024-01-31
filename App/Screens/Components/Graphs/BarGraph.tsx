@@ -2,8 +2,8 @@ import React from 'react';
 import {View} from 'react-native';
 import {Text} from 'react-native-svg';
 import {BarChart, Grid} from 'react-native-svg-charts';
-import {chatProps, navigableState} from '../../../App';
-import {HitCount} from '../../Service/Counter';
+import {chatProps, navigableState} from '../../../../App';
+import {HitCount} from '../../../Service/Counter';
 
 const CUT_OFF = 20;
 

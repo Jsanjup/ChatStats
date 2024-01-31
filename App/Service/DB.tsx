@@ -1,9 +1,10 @@
+import {typeORMDriver} from 'react-native-quick-sqlite';
 import {
   CustomRepositoryNotFoundError,
   DataSource,
   Repository,
 } from 'typeorm/browser';
-import {Chat} from '../Model/Chat';
+import {Chat, chat} from '../Model/Chat';
 import {Stats} from '../Model/Stat';
 
 const DB_NAME = 'chatstats.db';
@@ -19,18 +20,18 @@ export class DB {
     try {
       console.debug('DB CONNECTION CREATION => ');
       DB.connection = new DataSource({
-        type: 'react-native',
-        name: CONNECTION_NAME,
         database: DB_NAME,
         entities: [Chat, Stats],
-        logging: ['info'],
-        location: 'default',
+        location: '.',
+        logging: ['error', 'info', 'log' /* 'query', 'schema', */, 'warn'],
         synchronize: true,
+        type: 'react-native',
+        driver: typeORMDriver,
       });
-      console.log('DB CONNECTION CREATED => ', DB.connection);
+      // console.log('DB CONNECTION CREATED => ', DB.connection);
       DB.connection = await DB.connection.initialize();
     } catch (err) {
-      console.log('DB CONNECTION ERROR => ', err);
+      console.log('DB CONNECTION ERROR => ', err, DB.connection);
     }
   }
 
@@ -42,7 +43,7 @@ export class DB {
       console.debug('[DBService] Recreate new connection');
       DB.connection = await DB.connection.initialize();
     }
-    // console.log('[DB SERVICE] CONECTION CONNECTED => ');
+    console.log('[DB SERVICE] CONECTION CONNECTED => ');
   }
 
   static async initRepositories() {
@@ -86,5 +87,33 @@ export class DB {
       DB.isConnecting = false;
       console.log('[DBService]', 'End connect', DB.isConnecting);
     }
+  }
+
+  static async createNewChat(chat: chat): Promise<void> {
+    console.log('DB CONNECTION => createChat');
+    try {
+      await DB.connect();
+      await DB.chatRepository?.save(new Chat(chat));
+      console.debug('[DBService] Stored chat => ' + chat.id);
+    } catch (error) {
+      console.log('[DBService] Error adding chat: ', error);
+    }
+  }
+
+  static async getAllChats(): Promise<chat[]> {
+    console.log('DB CONNECTION => getAllChats');
+    try {
+      await DB.connect();
+      let chats = await DB.chatRepository?.find({
+        relations: {
+          stats: true,
+        },
+      });
+      console.debug('[DBService] Got ' + chats?.length + ' chats.');
+      return chats?.map(c => c.toChat());
+    } catch (e) {
+      console.log('[DBService] Error getting chat: ' + e);
+    }
+    return [];
   }
 }

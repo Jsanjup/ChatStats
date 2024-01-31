@@ -1,0 +1,7 @@
+{
+    "NEW_CHAT": "Analyze new chat",
+    "NO_CHAT_DATA":"No data available yet",
+    "CHAT_IMPORTED": "Data imported from chat",
+    "LOADING": "Loading...",
+    "SELECT_WHATSAPP_CHAT": "In WhatsApp, select the chat you want to analyze and export it (without files) to this App. The chat will be automatically analyzed."
+}

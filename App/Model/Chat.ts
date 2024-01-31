@@ -1,7 +1,8 @@
+import moment from 'moment';
 import {
   Column,
   Entity,
-  JoinTable,
+  JoinColumn,
   OneToOne,
   PrimaryColumn,
 } from 'typeorm/browser';
@@ -9,9 +10,10 @@ import {Stats, stats} from './Stat';
 
 export type chat = {
   id: string;
-  authors: string[];
-  lastDate: Date;
+  lastDate: moment.Moment;
   stats: stats;
+  wordfilter?: string;
+  additionalFilters?: string[];
 };
 
 @Entity('chat')
@@ -19,47 +21,59 @@ export class Chat {
   @PrimaryColumn('text')
   id: string;
 
-  @Column('text')
-  authors: string;
-
   @Column('datetime')
   lastTime: number;
 
-  @OneToOne(type => Stats, {
-    cascade: ['insert'],
+  @OneToOne(() => Stats, stats => stats.chat, {
+    cascade: ['insert', 'update', 'remove'],
   })
-  @JoinTable()
+  @JoinColumn()
+  //@ts-ignore
   stats: Stats;
 
-  constructor(chat: chat) {
-    this.id = chat.id;
-    this.authors = JSON.stringify(chat.authors);
-    this.lastTime = chat.lastDate.getTime();
-    this.stats = new Stats(chat.stats);
+  @Column('text', {nullable: true})
+  wordfilter?: string;
+
+  @Column('text', {nullable: true})
+  additionalFiltersArray?: string;
+
+  constructor(chat?: chat) {
+    this.id = chat?.id || '';
+    this.lastTime = chat?.lastDate.valueOf() || 0;
+
+    if (chat) this.stats = new Stats(chat?.stats);
+    this.additionalFilters = chat?.additionalFilters;
+    this.wordfilter = chat?.wordfilter;
   }
 
   toChat(): chat {
     return {
       id: this.id,
-      authors: this.authorsArray,
       lastDate: this.lastDate,
-      stats: this.stats.toStats(),
+      stats: this.stats?.toStats(),
+      additionalFilters: this.additionalFilters,
+      wordfilter: this.wordfilter,
     };
   }
 
-  get authorsArray(): string[] {
-    return JSON.parse(this.authors) as string[];
+  get additionalFilters(): string[] | undefined {
+    if (!this.additionalFiltersArray) {
+      return;
+    }
+    return JSON.parse(this.additionalFiltersArray) as string[];
   }
 
-  set authorsArray(authors: string[]) {
-    this.authors = JSON.stringify(authors);
+  set additionalFilters(additionalFilters: string[] | undefined) {
+    if (additionalFilters) {
+      this.additionalFiltersArray = JSON.stringify(additionalFilters);
+    }
   }
 
-  set lastDate(t: Date) {
-    this.lastTime = t.getTime();
+  set lastDate(t: moment.Moment) {
+    this.lastTime = t.valueOf();
   }
 
-  get lastDate(): Date {
-    return new Date(this.lastTime);
+  get lastDate(): moment.Moment {
+    return moment(this.lastTime);
   }
 }

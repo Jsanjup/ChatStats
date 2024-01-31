@@ -17,7 +17,7 @@ export const styles = StyleSheet.create({
   header: {height: 50, backgroundColor: '#537791'},
   text: {textAlign: 'center', fontWeight: '100', color: '#000000'},
   dataWrapper: {marginTop: -1},
-  row: {height: 40, backgroundColor: '#E7E6E1'},
+  row: {height: 40, backgroundColor: 'black'},
   head: {height: 40, backgroundColor: '#f1f8ff'},
   wrapper: {flexDirection: 'row'},
   title: {flex: 1, backgroundColor: '#f6f8fa'},

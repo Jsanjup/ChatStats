@@ -1,24 +1,25 @@
 import moment from 'moment';
 import React, {Component} from 'react';
-import {ScrollView, Text, View} from 'react-native';
+import {ScrollView, View} from 'react-native';
 import {Row, Table} from 'react-native-table-component';
-import {StackParamList, navigableState} from '../../App';
-import {Stat} from '../Model/Types';
-import {HitCount} from '../Service/Counter';
-import {styles} from './Styles/TableStyles';
+import {chatProps, navigableState} from '../../../App';
+import {Stat} from '../../Model/Types';
+import {HitCount} from '../../Service/Counter';
+import {styles} from '../Styles/TableStyles';
 
-import type {NativeStackScreenProps} from '@react-navigation/native-stack';
-import {stats} from '../Model/Stat';
+import {stats} from '../../Model/Stat';
+import AnimatedLoadingModal from './LoadingModal';
 
-type Props = NativeStackScreenProps<StackParamList, 'ChatTable'>;
-
-export default class TableComponent extends Component<Props, navigableState> {
+export default class TableComponent extends Component<
+  chatProps,
+  navigableState
+> {
   heads: string[];
   dates: string[];
   tableData: (number | string)[][];
   widthArr: number[];
 
-  constructor(props: Props) {
+  constructor(props: chatProps) {
     super(props);
     this.state = {loading: true};
 
@@ -28,24 +29,38 @@ export default class TableComponent extends Component<Props, navigableState> {
     this.widthArr = [80];
   }
 
-  async componentDidMount() {
-    const navData: stats = this.props.route.params.data;
-    const beginDate: moment.Moment | undefined =
-      this.props.route.params.beginDate;
-    const endDate: moment.Moment | undefined = this.props.route.params.endDate;
-    const data = HitCount.filterDates(navData.stats, beginDate, endDate);
-    this.dates = HitCount.getDates(data);
-    this.heads = ['Date', ...navData.authors];
-    this.widthArr = [...this.widthArr, ...navData.authors.map(a => 60)];
-    this.tableData = HitCount.groupByDay(data, this.heads.length - 1).map(
-      (st: Stat[]) => st.map((s: Stat) => s.total),
-    );
-    this.setState({loading: false});
+  async componentDidUpdate(prevProps: chatProps) {
+    if (
+      prevProps.beginDate !== this.props.beginDate ||
+      prevProps.data !== this.props.data ||
+      prevProps.endDate !== this.props.endDate
+    ) {
+      console.log('COMPONENT DID UPDATE!');
+      this.setState({loading: true});
+      const navData: stats = this.props.data;
+      const beginDate: moment.Moment | undefined = this.props.beginDate;
+      const endDate: moment.Moment | undefined = this.props.endDate;
+      console.log('Filter between dates', beginDate, endDate);
+      const data = HitCount.filterDates(navData.stats, beginDate, endDate);
+      this.dates = HitCount.getDates(data);
+      console.log('Filtered...', this.dates);
+      this.heads = ['Date', ...navData.authors];
+      this.widthArr = [...this.widthArr, ...navData.authors.map(a => 60)];
+      this.tableData = HitCount.groupByDay(data, this.heads.length - 1).map(
+        (st: Stat[]) => st.map((s: Stat) => s.total),
+      );
+      this.setState({loading: false});
+    }
   }
 
   render() {
     if (this.state.loading) {
-      return <Text>LOADING...</Text>;
+      console.log('LOADINGGG!!!');
+      return (
+        <AnimatedLoadingModal
+          visible={this.state.loading}
+          text="Loading..."></AnimatedLoadingModal>
+      );
     }
     console.log(
       '[Table]',

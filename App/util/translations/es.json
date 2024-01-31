@@ -1,0 +1,7 @@
+{
+   "NEW_CHAT": "Analizar nuevo chat",
+   "NO_CHAT_DATA": "Aún no hay datos disponibles",
+   "CHAT_IMPORTED": "Datos de chat importados",
+   "LOADING": "Cargando...",
+   "SELECT_WHATSAPP_CHAT": "En WhatsApp, selecciona el chat que deseas analizar y expórtalo (sin archivos) a esta App. El chat se analizará automáticamente."
+}

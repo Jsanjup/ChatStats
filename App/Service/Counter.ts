@@ -148,7 +148,7 @@ export class HitCount {
     }
     // console.debug('[HitCount]', 'Sorting');
     this.sortHits(this.count);
-    console.debug('[HitCount]', 'Sorted and filled', this.count);
+    console.debug('[HitCount]', 'Sorted and filled');
     this.isSorted = true;
   }
 

@@ -46,8 +46,9 @@ export class Time {
     if (!d) {
       d = moment();
     }
-    const first = moment().year(d.year()).month(d.month()).day(1);
-    const last = first.add(1, 'm').subtract(1, 'd');
+    const first = d.clone().startOf('month');
+    const last = d.clone().endOf('month');
+    console.log('Month window', d, first, last);
     return [first, last];
   }
 
