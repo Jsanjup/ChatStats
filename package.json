@@ -14,6 +14,7 @@
     "@react-native-masked-view/masked-view": "^0.3.1",
     "@react-navigation/native": "^6.1.9",
     "@react-navigation/native-stack": "^6.9.17",
+    "@reduxjs/toolkit": "^2.7.0",
     "babel-plugin-module-resolver": "^5.0.0",
     "babel-plugin-transform-typescript-metadata": "^0.3.2",
     "base64url": "^3.0.1",
@@ -24,6 +25,7 @@
     "react-native": "0.73.1",
     "react-native-fs": "^2.20.0",
     "react-native-gesture-handler": "^2.14.1",
+    "react-native-gzip": "^1.1.0",
     "react-native-linear-gradient": "^2.8.3",
     "react-native-localize": "^3.0.6",
     "react-native-neomorph-shadows": "^1.1.2",
@@ -37,7 +39,12 @@
     "react-native-svg-charts": "^5.4.0",
     "react-native-table-component": "^1.2.2",
     "react-native-url-polyfill": "^2.0.0",
+    "react-native-zip-archive": "^7.0.1",
+    "react-native-zip-stream": "^1.0.7",
+    "react-redux": "^9.2.0",
+    "redux-observable": "^3.0.0-rc.2",
     "reflect-metadata": "^0.2.1",
+    "rxjs": "^7.8.2",
     "typeorm": "^0.3.19"
   },
   "devDependencies": {

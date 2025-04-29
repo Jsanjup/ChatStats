@@ -6,12 +6,16 @@
  */
 
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
-import React, {useCallback, useEffect, useState} from 'react';
+import {Dispatch} from '@reduxjs/toolkit';
+import React, {useEffect} from 'react';
 import {View} from 'react-native';
 import {ScrollView} from 'react-native-gesture-handler';
+import {useDispatch, useSelector} from 'react-redux';
 import {StackParamList} from '../../App';
+import {chatsSelectors} from '../features/Chats';
+import {checkLocalChats} from '../features/Chats/actions';
+import {ChatActions} from '../features/Chats/types';
 import {chat} from '../Model/Chat';
-import {DB} from '../Service/DB';
 import translate from '../util/Internationalization';
 import NeumorphicButton from './Components/ButtonNeumorphic';
 import {styles} from './Styles/ChatListStyles';
@@ -19,21 +23,11 @@ import {styles} from './Styles/ChatListStyles';
 type Props = NativeStackScreenProps<StackParamList, 'ChatList'>;
 
 function ChatList(props: Props): JSX.Element {
-  const [chats, setChats] = useState<chat[] | undefined>();
-
-  const loadChats = useCallback(async () => {
-    let dbchats = chats;
-    try {
-      dbchats = await DB.getAllChats();
-    } catch (e) {
-      console.error('[ChatList]', 'Error retrieving all chats', e);
-    }
-    console.log(dbchats);
-    setChats(dbchats);
-  }, []);
+  const dispatch = useDispatch<Dispatch<ChatActions>>();
+  const chats = useSelector(chatsSelectors.getChats);
 
   useEffect(() => {
-    loadChats();
+    dispatch(checkLocalChats());
   }, []);
 
   const renderElement = (text: string, onPress: () => void) => (

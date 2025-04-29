@@ -1,7 +1,8 @@
 import {Buffer} from 'buffer';
 import RNFS from 'react-native-fs';
+import {streamFileFromZip} from 'react-native-zip-stream';
 import {ChatLine} from '../Model/Types';
-import {SharedItem} from '../Screens/ChatList';
+import {SharedItem} from './ChatManager';
 
 const chatRegex =
   /(\d{1,2}\/\d{1,2}\/\d{1,2}), (\d{1,2}:\d{1,2}) \- (.*:)?(.*)/;
@@ -9,24 +10,32 @@ export class ChatProcessor {
   static async process(
     item: SharedItem,
   ): Promise<{id: string; lines: ChatLine[]}> {
-    if (item.data.length >= 1) {
-      return await this.processFile(item.data[0]);
+    console.log('[Chat Processor]', item);
+    if (typeof item.data === 'string') {
+      console.log('[Chat Processor]', item.data, item.mimeType);
+      return await this.processFile(item.data, item.mimeType);
+    }
+    if ((item.data as any[]).length >= 1) {
+      console.log('[Chat Processor]', item, item.data[0], item.data[1]);
+      return await this.processFile(item.data[0], item.data[1]);
     }
     return {lines: [], id: ''};
   }
 
   private static async processFile(
     filepath: string,
+    mimetype?: string,
   ): Promise<{id: string; lines: ChatLine[]}> {
-    const {id, content} = await this.readFile(filepath);
+    const {id, content} = await this.readFile(filepath, mimetype);
     const lines = this.getLines(content);
     return {id: id, lines: await this.parseLines(lines)};
   }
 
   private static async readFile(
     filepath: string,
+    mimeType?: string,
   ): Promise<{id: string; content: string}> {
-    // console.log('Trying to open file at', filepath);
+    console.log('Trying to open file at', filepath);
     try {
       let destPath = filepath;
       let id = destPath;
@@ -37,14 +46,31 @@ export class ChatProcessor {
         id = fileNameAndExtension;
         await RNFS.copyFile(filepath, destPath);
       }
-      // console.log('Data loaded at ', destPath, '. Beginning to read...');
-      const reader = await RNFS.readFile(destPath, 'base64');
-      // console.log('Data read. Converting to base64...');
-      let data = Buffer.from(reader, 'base64').toString('utf-8');
+      console.log('Data loaded at ', destPath, '. Beginning to read...');
+
+      let data: string = '';
+
+      if (mimeType?.includes('zip')) {
+        //console.log('Zip file!!');
+        //Alternative way, also working
+        // const n = `${RNFS.TemporaryDirectoryPath}/${id}-2`;
+        // let f = await unzip(destPath, n);
+        // data = await RNFS.readFile(`${f}/${id}.txt`);
+
+        data = (await streamFileFromZip(
+          destPath,
+          `${id}.txt`,
+          'string',
+        )) as string;
+      } else {
+        const reader = await RNFS.readFile(destPath, 'base64');
+        // console.log('Data read. Converting from base64...');
+        data = Buffer.from(reader, 'base64').toString('utf-8');
+      }
       // console.log('Data converted. Ready to parse.');
       return {id: id, content: data};
     } catch (err) {
-      console.log(err);
+      console.log('Error reading file', err);
       return {id: '', content: ''};
     }
   }

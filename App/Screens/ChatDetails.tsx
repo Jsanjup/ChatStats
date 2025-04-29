@@ -33,14 +33,17 @@ function EmptyChatDetails(props: emptyChatProps): JSX.Element {
   const [filterWords, setFilterWords] = useState<string[] | undefined>();
 
   const handleShare = useCallback(async (item?: SharedItem) => {
+    console.log('HANDLED DATA', item);
     setChatData(item);
+    console.log('chatData', chatData);
   }, []);
 
   const analyze = useCallback(async () => {
+    console.log('Analyzing...');
     const chat = await ChatManager.createChat(chatData, filter, filterWords);
     console.log('Set Stats');
     props.setStats(chat.stats);
-  }, []);
+  }, [chatData]);
 
   useEffect(() => {
     ShareMenu.getInitialShare(handleShare);

@@ -17,6 +17,7 @@ export class ChatManager {
     filter?: string,
     filterAdd?: string[],
   ): Promise<chat> {
+    console.log('[ChatManager]', 'Creating chat...', item);
     if (!item) {
       throw new Error('Need chat export to create chat');
     }
@@ -32,6 +33,8 @@ export class ChatManager {
         const filterRegex = Regex.buildSimilar(filter, filterAdd);
         ChatAnalyzer.setFilter(filterRegex);
       }
+      console.log('[ChatList]', 'Got stats');
+
       const stats = ChatAnalyzer.analyze(id, lines);
       console.log('[ChatList]', 'Got stats');
 

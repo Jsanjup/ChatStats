@@ -8,10 +8,13 @@
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import React, {useEffect} from 'react';
+import {LogBox} from 'react-native';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
+import {Provider} from 'react-redux';
 import {stats} from './App/Model/Stat';
 import ChatDetails from './App/Screens/ChatDetails';
 import ChatList from './App/Screens/ChatList';
+import getStore from './App/store/store';
 import {setI18nConfig} from './App/util/Internationalization';
 
 export type chatProps = {
@@ -40,21 +43,25 @@ function MyStack() {
   );
 }
 
+const store = getStore();
+
 export default function App() {
   useEffect(() => {
     setI18nConfig();
 
-    // LogBox.ignoreAllLogs();
-    // LogBox.ignoreLogs(['']);
+    LogBox.ignoreAllLogs();
+    LogBox.ignoreLogs(['']);
 
     // SplashScreen.hide();
-  }, []);
+  }, [setI18nConfig]);
 
   return (
-    <GestureHandlerRootView style={{flex: 1}}>
-      <NavigationContainer>
-        <MyStack />
-      </NavigationContainer>
-    </GestureHandlerRootView>
+    <Provider store={store}>
+      <GestureHandlerRootView style={{flex: 1}}>
+        <NavigationContainer>
+          <MyStack />
+        </NavigationContainer>
+      </GestureHandlerRootView>
+    </Provider>
   );
 }
